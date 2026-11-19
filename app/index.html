@@ -3,20 +3,72 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Cover Snap</title>
+<title>Leonida Nights — GTA-style Cover Art Maker</title>
 <link rel="stylesheet" href="./style.css">
 </head>
 <body>
 <main class="app">
-  <section class="controls">
-    <h1>Cover Snap</h1>
-    <p>A photo and a caption, made into a square cover.</p>
-    <label>Photo <input id="photo" type="file" accept="image/*"></label>
-    <label>Caption <input id="caption" type="text" maxlength="40" value="Sunset Heist"></label>
-    <button id="export" type="button">Export PNG 1080 x 1080</button>
-    <p id="status" role="status"></p>
-  </section>
-  <canvas id="cover" width="1080" height="1080" aria-label="The cover"></canvas>
+  <div class="editor">
+    <h1>LEONIDA NIGHTS</h1>
+    <p class="tagline">Turn your photo + caption into GTA-style cover art.</p>
+    <p class="steps"><b>3 steps:</b> 1. Add a photo &nbsp;·&nbsp; 2. Pick a layout &amp; caption &nbsp;·&nbsp; 3. Export PNG</p>
+
+    <section class="panel" aria-label="Photo">
+      <h2>1 · Photo</h2>
+      <label class="field">Your photos <input id="photo" type="file" accept="image/*" multiple></label>
+      <p class="hint">Photos stay on your machine — nothing is uploaded.</p>
+      <button id="load-samples" type="button">Load sample photos</button>
+    </section>
+
+    <section class="panel" aria-label="Layout">
+      <h2>2 · Layout</h2>
+      <div class="row" id="layouts"></div>
+      <p class="hint">Click a panel in the preview to select it, then drag it to reposition the photo.</p>
+      <label class="field"><span id="panel-label">Panel 1 of 4</span>
+        <select id="panel-photo"></select>
+      </label>
+      <label class="field">Zoom — <span id="zoom-value">105%</span>
+        <input id="zoom" type="range" min="1" max="2.5" step="0.05" value="1.05">
+      </label>
+      <button id="reset-panel" type="button">Reset this panel</button>
+    </section>
+
+    <section class="panel" aria-label="Grade">
+      <h2>3 · Sunset / neon grade</h2>
+      <div class="row" id="grades"></div>
+    </section>
+
+    <section class="panel" aria-label="Caption">
+      <h2>4 · Caption</h2>
+      <label class="field">Title <input id="title" type="text" maxlength="40" value="LEONIDA NIGHTS"></label>
+      <label class="field">Subtitle <input id="subtitle" type="text" maxlength="40" value="Vice City, baby"></label>
+      <label class="field">Badge ribbon <input id="badge" type="text" maxlength="16" value="EST. 2026"></label>
+      <label class="check"><input id="grain" type="checkbox" checked> Film grain</label>
+      <label class="check"><input id="vignette" type="checkbox" checked> Vignette</label>
+    </section>
+
+    <section class="panel" aria-label="Export">
+      <h2>5 · Export PNG</h2>
+      <div class="row" id="sizes"></div>
+      <label class="check"><input class="export-size" type="checkbox" value="square" checked> 1080 × 1080</label>
+      <label class="check"><input class="export-size" type="checkbox" value="portrait" checked> 1080 × 1350</label>
+      <label class="check"><input class="export-size" type="checkbox" value="wide" checked> 1920 × 1080</label>
+      <button id="export" type="button">Export PNG — all 3 sizes</button>
+      <p id="status" role="status"></p>
+    </section>
+  </div>
+
+  <div class="preview">
+    <div class="preview-head">
+      <h2>Live preview</h2>
+      <span>
+        <button id="undo" type="button">Undo</button>
+        <button id="redo" type="button">Redo</button>
+      </span>
+    </div>
+    <canvas id="cover" width="1920" height="1080" aria-label="Cover preview"></canvas>
+    <p class="foot">Original design. Fonts Anton &amp; Pacifico under the SIL Open Font License — see <a href="./fonts/OFL.txt">fonts/OFL.txt</a>. No Rockstar logo, artwork or font is used. Sample photos were made for make.fun and are free to use.</p>
+  </div>
 </main>
 <script type="module" src="./src/main.js"></script>
 </body>
