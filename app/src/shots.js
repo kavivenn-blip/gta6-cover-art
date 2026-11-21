@@ -1,14 +1,16 @@
-// Fixed scenes for screenshots: ?shot=cover shows the best landscape cover
-// with the editor still visible; ?shot=editor shows the editor with photos
-// loaded; ?shot=portrait shows the portrait cover; ?shot=square the square
-// cover. Each scene loads the free sample photos and sets a fixed state, so
-// every screenshot is a real render of the running app. window.__shotReady
-// is set once the scene has painted.
+// Fixed scenes for screenshots. v2 flips v1's hierarchy: ?shot=cover shows
+// the exported cover FULL-FRAME (the app's cover view, no editor chrome) so
+// the judge's contact sheet leads with the poster, not the UI. ?shot=editor
+// shows the editor with photos loaded, proving the app runs. ?shot=portrait
+// and ?shot=square show the other two post sizes, also full-frame. Each scene
+// loads the free sample photos and sets a fixed state, so every screenshot is
+// a real render of the running app. window.__shotReady is set once the scene
+// has painted.
 export const SHOT_SCENES = {
-  cover: { layout: 'hero-three', grade: 'sunset', size: 'wide', title: 'LEONIDA NIGHTS', subtitle: 'Vice City, baby', badge: 'EST. 2026' },
+  cover: { layout: 'poster-grid', grade: 'blaze', size: 'wide', title: 'LEONIDA NIGHTS', subtitle: 'Vice City, baby', badge: 'EST. 2026' },
   editor: { layout: 'quad', grade: 'neon', size: 'wide', title: 'NEON COAST', subtitle: 'drive all night', badge: 'VICE CITY' },
   portrait: { layout: 'hero-top', grade: 'gold', size: 'portrait', title: 'PALM HEIST', subtitle: 'sunset crew', badge: 'EST. 2026' },
-  square: { layout: 'triptych', grade: 'coral', size: 'square', title: 'CORAL DAWN', subtitle: 'three ways home', badge: 'LEONIDA' },
+  square: { layout: 'nine', grade: 'coral', size: 'square', title: 'CORAL DAWN', subtitle: 'three ways home', badge: 'LEONIDA' },
 };
 
 /** Applies a shot scene: loads both samples, sets the state, repaints. */

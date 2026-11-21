@@ -1,10 +1,15 @@
-// Leonida Nights: a GTA-style cover art maker for gta6-cover-art-01 (Node 22,
-// standard library only). The app is this directory's app/ folder, plain static
-// files a desktop browser loads offline (app/index.html and its ES modules, the
-// Anton and Pacifico fonts under app/fonts/, no library and no network request),
-// and this program hands it in. It copies app/ and screenshots/ from beside
-// this file to /output and writes /output/dossier.json, the summary the judge
-// reads, with the vendored make.fun library.
+// Leonida Nights v2: a GTA-style cover art maker for gta6-cover-art-01
+// (Node 22, standard library only). The app is this directory's app/ folder,
+// plain static files a desktop browser loads offline (app/index.html and its
+// ES modules, the Anton and Pacifico fonts under app/fonts/, no library and
+// no network request), and this program hands it in. It copies app/ and
+// screenshots/ from beside this file to /output and writes /output/dossier.json,
+// the summary the judge reads, with the vendored make.fun library.
+//
+// v2 ("Cover-first"): the cover renderer is more vivid (stronger sunset/neon
+// grade, denser poster-grid layout, bigger stroked title), the editor is
+// slimmer, the title drags, photos drop onto panels to swap, and one click
+// exports all three post sizes. Screenshot 1 is the cover full-frame.
 //
 // Serve it locally with `node serve.ts`, then open http://localhost:8080.
 // Outside the grader's container, MAKEFUN_OUTPUT_DIR stands in for /output:

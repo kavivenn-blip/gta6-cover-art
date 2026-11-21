@@ -1,5 +1,7 @@
 // Exports the cover as PNGs in the three common post sizes. Each size is
-// rendered fresh from the same state, so every file is the same cover.
+// rendered fresh from the same state, so every file is the same cover. v2
+// adds exportAllSizes: one click renders all three sizes in order, the
+// fastest path from photo to a full set of posts.
 import { drawCoverArt } from './cover.js';
 
 export const EXPORT_SIZES = [
@@ -46,4 +48,9 @@ export async function exportCheckedSizes(state, photos, checkedIds, onProgress) 
     onProgress?.(`Saved cover-${size.w}x${size.h}.png`);
   }
   return done;
+}
+
+/** Renders and downloads all three post sizes, in order — one click, full set. */
+export async function exportAllSizes(state, photos, onProgress) {
+  return exportCheckedSizes(state, photos, EXPORT_SIZES.map((s) => s.id), onProgress);
 }

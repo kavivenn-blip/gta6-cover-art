@@ -16,7 +16,7 @@
     <section class="panel" aria-label="Photo">
       <h2>1 · Photo</h2>
       <label class="field">Your photos <input id="photo" type="file" accept="image/*" multiple></label>
-      <p class="hint">Photos stay on your machine — nothing is uploaded.</p>
+      <p class="hint">Photos stay on your machine — nothing is uploaded. Drop a photo on a panel to swap it in.</p>
       <button id="load-samples" type="button">Load sample photos</button>
     </section>
 
@@ -24,7 +24,7 @@
       <h2>2 · Layout</h2>
       <div class="row" id="layouts"></div>
       <p class="hint">Click a panel in the preview to select it, then drag it to reposition the photo.</p>
-      <label class="field"><span id="panel-label">Panel 1 of 4</span>
+      <label class="field"><span id="panel-label">Panel 1 of 7</span>
         <select id="panel-photo"></select>
       </label>
       <label class="field">Zoom — <span id="zoom-value">105%</span>
@@ -43,6 +43,8 @@
       <label class="field">Title <input id="title" type="text" maxlength="40" value="LEONIDA NIGHTS"></label>
       <label class="field">Subtitle <input id="subtitle" type="text" maxlength="40" value="Vice City, baby"></label>
       <label class="field">Badge ribbon <input id="badge" type="text" maxlength="16" value="EST. 2026"></label>
+      <p class="hint">Drag the title on the cover to move it.</p>
+      <button id="reset-title" type="button">Reset title position</button>
       <label class="check"><input id="grain" type="checkbox" checked> Film grain</label>
       <label class="check"><input id="vignette" type="checkbox" checked> Vignette</label>
     </section>
@@ -50,9 +52,7 @@
     <section class="panel" aria-label="Export">
       <h2>5 · Export PNG</h2>
       <div class="row" id="sizes"></div>
-      <label class="check"><input class="export-size" type="checkbox" value="square" checked> 1080 × 1080</label>
-      <label class="check"><input class="export-size" type="checkbox" value="portrait" checked> 1080 × 1350</label>
-      <label class="check"><input class="export-size" type="checkbox" value="wide" checked> 1920 × 1080</label>
+      <p class="hint">One click saves all three sizes: 1080 × 1080, 1080 × 1350, 1920 × 1080.</p>
       <button id="export" type="button">Export PNG — all 3 sizes</button>
       <p id="status" role="status"></p>
     </section>

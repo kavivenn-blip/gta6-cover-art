@@ -1,12 +1,14 @@
 // Wires the cover editor: photo upload, layout and grade pickers, caption
-// editing, per-panel crop and position, undo/redo, and PNG export in the
-// three post sizes. A `?shot=` query sets up a fixed scene for a screenshot
-// instead (./shots.js). Photos never leave the machine: they are read with
+// editing, per-panel crop and position, title drag, drop-to-swap, undo/redo,
+// and one-click PNG export of all three post sizes. A `?shot=` query sets up
+// a fixed scene for a screenshot instead (./shots.js); `?view=cover` shows
+// only the cover canvas full-viewport, so a screenshot leads with the poster
+// instead of the editor. Photos never leave the machine: they are read with
 // object URLs and drawn locally.
 import { drawCoverArt } from './cover.js';
 import { LAYOUTS, panelCountForLayout, panelRectsForLayout } from './layouts.js';
 import { GRADES } from './grades.js';
-import { EXPORT_SIZES, exportCheckedSizes, exportSizeFor } from './export.js';
+import { EXPORT_SIZES, exportAllSizes, exportSizeFor } from './export.js';
 import { runShot } from './shots.js';
 
 const canvas = document.getElementById('cover');
@@ -31,12 +33,14 @@ let redoStack = [];
 
 function defaultState() {
   return {
-    layout: 'hero-three',
-    grade: 'sunset',
+    layout: 'poster-grid',
+    grade: 'blaze',
     size: 'wide',
     title: 'LEONIDA NIGHTS',
     subtitle: 'Vice City, baby',
     badge: 'EST. 2026',
+    titleX: 0,
+    titleY: 0,
     grain: true,
     vignette: true,
     panels: [
@@ -44,6 +48,11 @@ function defaultState() {
       { photo: 1, zoom: 1.1, ox: 0, oy: 0 },
       { photo: 0, zoom: 1.15, ox: 0, oy: 0 },
       { photo: 1, zoom: 1.05, ox: 0, oy: 0 },
+      { photo: 0, zoom: 1.1, ox: 0, oy: 0 },
+      { photo: 1, zoom: 1.05, ox: 0, oy: 0 },
+      { photo: 0, zoom: 1.15, ox: 0, oy: 0 },
+      { photo: 1, zoom: 1.05, ox: 0, oy: 0 },
+      { photo: 0, zoom: 1.1, ox: 0, oy: 0 },
     ],
   };
 }
@@ -236,6 +245,12 @@ function wireInputs() {
     syncPanelControls();
     redraw();
   });
+  document.getElementById('reset-title').addEventListener('click', () => {
+    pushHistory();
+    state.titleX = 0;
+    state.titleY = 0;
+    redraw();
+  });
 
   document.getElementById('undo').addEventListener('click', () => {
     if (undoStack.length === 0) return;
@@ -251,14 +266,9 @@ function wireInputs() {
   });
 
   document.getElementById('export').addEventListener('click', async () => {
-    const checked = [...document.querySelectorAll('.export-size:checked')].map((c) => c.value);
-    if (checked.length === 0) {
-      setStatus('Tick at least one export size first.');
-      return;
-    }
-    setStatus(`Exporting ${checked.length} PNG${checked.length > 1 ? 's' : ''}...`);
+    setStatus('Exporting all 3 PNGs...');
     try {
-      const done = await exportCheckedSizes(state, photos, checked, setStatus);
+      const done = await exportAllSizes(state, photos, setStatus);
       setStatus(`Saved: ${done.join(' · ')}.`);
     } catch (err) {
       setStatus(`Export failed: ${err.message}`);
@@ -266,6 +276,7 @@ function wireInputs() {
   });
 
   wireCanvasDrag();
+  wireCanvasDrop();
 }
 
 function canvasPoint(event) {
@@ -281,28 +292,46 @@ function panelAt(point) {
   return rects.findIndex((r) => point.x >= r.x && point.x <= r.x + r.w && point.y >= r.y && point.y <= r.y + r.h);
 }
 
+/** Is a cover point inside the title block (the bottom strip)? */
+function inTitleBlock(point) {
+  const blockH = Math.round(canvas.height * 0.26);
+  return point.y >= canvas.height - blockH;
+}
+
 function wireCanvasDrag() {
   let dragging = null;
   canvas.addEventListener('pointerdown', (e) => {
     const point = canvasPoint(e);
+    // Dragging the title block moves the title; dragging a panel repositions it.
+    if (inTitleBlock(point) && panelAt(point) === -1) {
+      selectedPanel = -1;
+      syncPanelControls();
+      redraw();
+      dragging = { kind: 'title', last: point, moved: false, before: snapshotState() };
+      canvas.setPointerCapture(e.pointerId);
+      return;
+    }
     const hit = panelAt(point);
     if (hit === -1) return;
     selectedPanel = hit;
     syncPanelControls();
     redraw();
-    dragging = { panel: hit, last: point, moved: false, before: snapshotState() };
+    dragging = { kind: 'panel', panel: hit, last: point, moved: false, before: snapshotState() };
     canvas.setPointerCapture(e.pointerId);
   });
   canvas.addEventListener('pointermove', (e) => {
     if (!dragging) return;
     const point = canvasPoint(e);
-    const panel = state.panels[dragging.panel];
-    const scale = canvas.width / canvas.getBoundingClientRect().width;
-    panel.ox += (point.x - dragging.last.x) * 1;
-    panel.oy += (point.y - dragging.last.y) * 1;
+    if (dragging.kind === 'title') {
+      state.titleX = (state.titleX ?? 0) + (point.x - dragging.last.x);
+      state.titleY = (state.titleY ?? 0) + (point.y - dragging.last.y);
+    } else {
+      const panel = state.panels[dragging.panel];
+      panel.ox += point.x - dragging.last.x;
+      panel.oy += point.y - dragging.last.y;
+    }
     dragging.last = point;
     dragging.moved = true;
-    void scale;
     redraw();
   });
   canvas.addEventListener('pointerup', () => {
@@ -315,14 +344,49 @@ function wireCanvasDrag() {
   });
 }
 
+/** Dropping a photo file onto a panel loads it into that panel (swap). */
+function wireCanvasDrop() {
+  canvas.addEventListener('dragover', (e) => {
+    e.preventDefault();
+  });
+  canvas.addEventListener('drop', async (e) => {
+    e.preventDefault();
+    const files = [...(e.dataTransfer?.files ?? [])].filter((f) => f.type.startsWith('image/'));
+    if (files.length === 0) return;
+    const point = canvasPoint(e);
+    const hit = panelAt(point);
+    const target = hit === -1 ? 0 : hit;
+    try {
+      const img = await loadImage(URL.createObjectURL(files[0]));
+      photos.push(img);
+      photoNames.push(files[0].name);
+      pushHistory();
+      state.panels[target].photo = photos.length - 1;
+      selectedPanel = target;
+      syncPanelControls();
+      redraw();
+      setStatus(`Dropped ${files[0].name} into panel ${target + 1}.`);
+    } catch {
+      setStatus(`Could not read ${files[0].name}.`);
+    }
+  });
+}
+
 buildPickers();
 wireInputs();
 syncControlsFromState();
 updateUndoButtons();
 
-const shot = new URLSearchParams(location.search).get('shot');
+const params = new URLSearchParams(location.search);
+const shot = params.get('shot');
+// Cover view: hide the editor, show only the cover canvas full-viewport.
+// Used by ?shot=cover / portrait / square so the screenshot leads with the
+// poster. The editor shot keeps the normal split view.
+if (params.get('view') === 'cover') {
+  document.body.classList.add('cover-view');
+}
 if (shot) {
-  runShot(shot, new URLSearchParams(location.search), async (scene) => {
+  runShot(shot, params, async (scene) => {
     await loadSamples();
     state = { ...defaultState(), ...scene, panels: defaultState().panels };
     // Cover shots show the art clean; the editor shot keeps a panel selected.

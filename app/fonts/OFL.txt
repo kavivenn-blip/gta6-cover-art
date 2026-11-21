@@ -1,6 +1,8 @@
-Copyright 2020 The Anton Project Authors (https://github.com/googlefonts/AntonFont.git)
+Fonts in this app (app/fonts/):
+- Anton-Regular.ttf — Copyright 2020 The Anton Project Authors (https://github.com/googlefonts/AntonFont.git)
+- Pacifico-Regular.ttf — Copyright 2011 The Pacifico Project Authors (https://github.com/googlefonts/PacificoFont.git)
 
-This Font Software is licensed under the SIL Open Font License, Version 1.1.
+Both fonts are licensed under the SIL Open Font License, Version 1.1.
 This license is copied below, and is also available with a FAQ at:
 http://scripts.sil.org/OFL
 
@@ -75,7 +77,7 @@ permission.
 must be distributed entirely under this license, and must not be
 distributed under any other license. The requirement for fonts to
 remain under this license does not apply to any document created
-using the Font Software.
+using the Fonts or their derivatives.
 
 TERMINATION
 This license becomes null and void if any of the above conditions are
